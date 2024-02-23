@@ -3,7 +3,7 @@ import { useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { useContacts } from "../contexts/ContactsProvider";
 import { useConversations } from "../contexts/ConversationsProvider";
-import { ToastContainer, toast } from "react-toastify"; // Remove unused variables
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 function Contacts({ id }) {
@@ -66,6 +66,7 @@ function Contacts({ id }) {
           </Form>
         </Modal.Body>
       </Modal>
+      <ToastContainer /> {/* Remove duplicate key */}
     </>
   );
 }
