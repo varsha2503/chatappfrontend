@@ -55,13 +55,25 @@ export default function ChatContainer({ currentChat, currentUser, socket }) {
     setMessages(msgs);
   };
 
+  //useEffect(() => {
+  //  if (socket.current) {
+ //     socket.current.on("msg-recieve", (msg) => {
+ //       setArrivalMessage({ fromSelf: false, message: msg });
+//      });
+//    }
+//  }, []);
+
+  
   useEffect(() => {
-    if (socket.current) {
-      socket.current.on("msg-recieve", (msg) => {
-        setArrivalMessage({ fromSelf: false, message: msg });
+    if (socket) {
+      socket.on("connect", () => {
+        console.log("Connected to server");
+      });
+      socket.on("disconnect", () => {
+        console.log("Disconnected from server");
       });
     }
-  }, []);
+  }, [socket]); 
 
   useEffect(() => {
     arrivalMessage && setMessages((prev) => [...prev, arrivalMessage]);
