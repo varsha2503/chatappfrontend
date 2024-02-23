@@ -62,8 +62,8 @@ export default function ChatContainer({ currentChat, currentUser, socket }) {
 //      });
 //    }
 //  }, []);
-
- useEffect(() => {
+  
+useEffect(() => {
   if (socket) {
     socket.on("connect", () => {
       console.log("Connected to server");
@@ -72,7 +72,7 @@ export default function ChatContainer({ currentChat, currentUser, socket }) {
       console.log("Disconnected from server");
     });
   }
-}, [socket, handleUsernameClick, setArrivalMessage]);
+}, [socket, handleUsernameClick, setArrivalMessage]); // Add missing dependencies
 
   useEffect(() => {
     arrivalMessage && setMessages((prev) => [...prev, arrivalMessage]);
