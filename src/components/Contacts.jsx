@@ -1,159 +1,74 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { ToastContainer, toast } from "react-toastify";
+import { Button, Modal, Form } from "@chakra-ui/react";
+import { useState } from "react";
+import { FaPlus } from "react-icons/fa";
+import { useContacts } from "../contexts/ContactsProvider";
+import { useConversations } from "../contexts/ConversationsProvider";
+import { ToastContainer, toast } from "react-toastify"; // Remove unused variables
 import "react-toastify/dist/ReactToastify.css";
-// import GroupChat from "./GroupChat" ;
-import { Button, Modal, Form } from 'react-bootstrap';
 
+function Contacts({ id }) {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedContactIds, setSelectedContactIds] = useState([]);
+  const { contacts, createContact } = useContacts();
+  const { createConversation } = useConversations();
 
-const Contacts = ({ contacts, changeChat }) => {
-  const [currentUserName, setCurrentUserName] = useState(undefined);
-  const [currentUserImage, setCurrentUserImage] = useState(undefined);
-  const [currentSelected, setCurrentSelected] = useState(undefined);
+  function handleSubmit(e) {
+    e.preventDefault();
 
-  const [groupname, setGroupName] = useState('');
+    createConversation(selectedContactIds);
+    closeModal();
+  }
 
-  const [values, setValues] = useState({
-    groupname : "",
-    participants : ""
-});
+  function closeModal() {
+    setModalOpen(false);
+  }
 
-const handleChange = (event) => {
-  setValues({ ...values, [event.target.name]: event.target.value });
-};
+  function handleCheckboxChange(contactId) {
+    setSelectedContactIds((prevSelectedContactIds) => {
+      if (prevSelectedContactIds.includes(contactId)) {
+        return prevSelectedContactIds.filter((prevId) => {
+          return contactId !== prevId;
+        });
+      } else {
+        return [...prevSelectedContactIds, contactId];
+      }
+    });
+  }
 
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = await JSON.parse(localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY));
-      setCurrentUserName(data.username);
-      setCurrentUserImage(data.avatarImage);
-    };
-
-    fetchData();
-  }, []);
-
-  const changeCurrentChat = (index, contact) => {
-    setCurrentSelected(index);
-    changeChat(contact);
-  };
-
-
-  const handleClick = () => {
-    const handleSubmit = (event) => {
-      event.preventDefault();
-      // Handle form submission logic
-      // You can access the input values with the `email` and `textarea` state variables
-      // Close the toast when done
-      // toast.dismiss();
-    };
-
-    const handleSearch = (event) => {
-    };
-
-    const messageContent = (
-      <>
-        <form>
-          <label style={{ fontSize: '35px', fontFamily: 'Work sans', display: 'flex', justifyContent: 'center', color: "black" }}>
-            Create Group Chat
-          </label>
-          <div>
-            <label for="" style={{marginTop : "5px"}}>Group Name</label>
-            <input style={{
-              width: '100%',
-              height: '40px',
-              fontSize: '16px',
-              color: '#ffffff',
-              padding: '0 10px',
-              background: 'transparent',
-              border: '1px solid #333',
-              outline: 'none',
-              borderRadius: '5px',
-              marginBottom : '10px' ,
-              color: "black" ,
-            }}
-              type="text"
-              name="groupname"
-              // placeholder="Chat Name"
-              onChange={(e) => handleChange(e)}
-              min="3"
-              required
-            />
-          </div>
-          <div style={{ width: '100%', display: 'flex', flexWrap: 'wrap' }}>
-          </div>
-          <button type="button" onClick={handleSubmit}
-            style={{
-              color: 'blue',
-              position: "relative",
-              top: "0",
-              left: "0",
-              width: "100%",
-              height: "40px",
-              background: "linear-gradient(to right, #642e9d, #34a7af)",
-              boxShadow: "0 2px 10px rgba(0, 0, 0, .4)",
-              fontSize: "16px",
-              color: "#fff",
-              fontWeight: "500",
-              cursor: "pointer",
-              borderRadius: "5px",
-              border: "none",
-              outline: "none",
-            }} >
-            Create Chat
-          </button>
-        </form>
-      </>
-    );
-
-    toast.info(messageContent, { autoClose: false, icon: false, pauseOnFocusLoss: true, closeOnClick: false });
-  };
-
+  function handleAddContact(name) {
+    createContact(name);
+  }
 
   return (
     <>
-    {/* <ToastContainer /> */}
-      {currentUserImage && currentUserImage && (
-        <Container>
-          <div className="brand">
-            {/* <img src={Logo} alt="logo" /> */}
-            <h3 >My Chats</h3>
-            <>
-              <button onClick={handleClick}>New Group +</button>
-              {/* <Button variant="primary" onClick={handleSubmit}>Create Group +</Button> */}
-            </>
-          </div>
-          <div className="contacts">
-            {contacts.map((contact, index) => (
-              <div
-                key={contact._id}
-                className={`contact ${index === currentSelected ? 'selected' : ''}`}
-                onClick={() => changeCurrentChat(index, contact)}
-              >
-                <div className="avatar">
-                  <img src={`data:image/svg+xml;base64,${contact.avatarImage}`} alt="" />
-                </div>
-                <div className="username">
-                  <h3>{contact.username}</h3>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="current-user">
-            <div className="avatar">
-              <img src={`data:image/svg+xml;base64,${currentUserImage}`} alt="avatar" />
-            </div>
-            <div className="username">
-              <h2>{currentUserName}</h2>
-            </div>
-          </div>
-        </Container>
-      )}
+      <div className="d-flex justify-content-between align-items-center">
+        <h2>Contacts</h2>
+        <FaPlus onClick={() => setModalOpen(true)} className="add-contact" />
+      </div>
+      <ul className="list-group">
+        {contacts.map((contact) => (
+          <li
+            key={contact.id}
+            className={`list-group-item ${
+              contact.selected ? "active" : ""
+            }`}
+            onClick={() => handleCheckboxChange(contact.id)}
+          >
+            {contact.name}
+          </li>
+        ))}
+      </ul>
+      <Modal isOpen={modalOpen} onClose={closeModal}>
+        <Modal.Header>Add Contact</Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={handleSubmit}>
+            {/* Form content */}
+          </Form>
+        </Modal.Body>
+      </Modal>
     </>
   );
-};
-
-
+}
 
 const Container = styled.div`
   display: grid;
